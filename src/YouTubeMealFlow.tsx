@@ -18,6 +18,7 @@ type SearchItem = {
   snippet?: {
     title?: string
     channelTitle?: string
+    description?: string
     thumbnails?: {
       high?: { url?: string }
       medium?: { url?: string }
