@@ -1,0 +1,17 @@
+{
+  "name": "段取りシェフ",
+  "short_name": "段取りシェフ",
+  "description": "在庫・献立・買い物・調理手順をスマホ1台でまとめるローカルファースト調理アプリ",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fffaf4",
+  "theme_color": "#fffaf4",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
