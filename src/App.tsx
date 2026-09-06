@@ -4,8 +4,9 @@ import { defaultState, loadState, saveState } from './lib/db'
 import { buildCookingSteps, buildPlans, getMissingIngredients } from './lib/planner'
 import type { AppState, IngredientCategory, MealPlan, PantryItem } from './types'
 import YouTubeAutoSuggestView, { clearAdoptedYouTubeRecipe, loadAdoptedYouTubeRecipe, type AdoptedYouTubeRecipe } from './YouTubeAutoSuggestView'
+import YouTubeMealFlow from './YouTubeMealFlow'
 
-type View = 'home' | 'plans' | 'pantry' | 'shopping' | 'youtube' | 'auto-youtube' | 'cooking'
+type View = 'home' | 'plans' | 'pantry' | 'shopping' | 'youtube' | 'auto-youtube' | 'youtube-flow' | 'cooking'
 type PlanMode = 'auto' | 'pantry'
 
 const timeOptions = [20, 30, 40, 50]
@@ -89,7 +90,7 @@ function App() {
             setTargetMinutes={setTargetMinutes}
             selectedPlan={selectedPlan}
             adoptedYouTube={adoptedYouTube}
-            onAutoYouTube={() => setView('auto-youtube')}
+            onAutoYouTube={() => setView('youtube-flow')}
             onClearAdoptedYouTube={() => {
               clearAdoptedYouTubeRecipe()
               setAdoptedYouTube(null)
@@ -137,6 +138,15 @@ function App() {
           />
         )}
 
+        {view === 'youtube-flow' && (
+          <YouTubeMealFlow
+            pantry={state.pantry}
+            targetMinutes={targetMinutes}
+            onBack={() => setView('home')}
+            onOpenYouTubeSettings={() => setView('youtube')}
+          />
+        )}
+
         {view === 'auto-youtube' && (
           <YouTubeAutoSuggestView
             pantry={state.pantry}
@@ -153,7 +163,7 @@ function App() {
         {view === 'youtube' && <YouTubeSearchView onBack={() => setView('home')} />}
       </main>
 
-      {view !== 'youtube' && view !== 'auto-youtube' && <BottomNav view={view} setView={setView} />}
+      {view !== 'youtube' && view !== 'auto-youtube' && view !== 'youtube-flow' && <BottomNav view={view} setView={setView} />}
     </div>
   )
 }
