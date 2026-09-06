@@ -3,8 +3,9 @@ import { recipes } from './data/recipes'
 import { defaultState, loadState, saveState } from './lib/db'
 import { buildCookingSteps, buildPlans, getMissingIngredients } from './lib/planner'
 import type { AppState, IngredientCategory, MealPlan, PantryItem } from './types'
+import YouTubeAutoSuggestView from './YouTubeAutoSuggestView'
 
-type View = 'home' | 'plans' | 'pantry' | 'shopping' | 'youtube' | 'cooking'
+type View = 'home' | 'plans' | 'pantry' | 'shopping' | 'youtube' | 'auto-youtube' | 'cooking'
 type PlanMode = 'auto' | 'pantry'
 
 const timeOptions = [20, 30, 40, 50]
@@ -86,6 +87,7 @@ function App() {
             targetMinutes={targetMinutes}
             setTargetMinutes={setTargetMinutes}
             selectedPlan={selectedPlan}
+            onAutoYouTube={() => setView('auto-youtube')}
             onOpenPlans={(mode) => {
               setPlanMode(mode)
               setView('plans')
@@ -129,10 +131,19 @@ function App() {
           />
         )}
 
+        {view === 'auto-youtube' && (
+          <YouTubeAutoSuggestView
+            pantry={state.pantry}
+            targetMinutes={targetMinutes}
+            onBack={() => setView('home')}
+            onOpenYouTubeSettings={() => setView('youtube')}
+          />
+        )}
+
         {view === 'youtube' && <YouTubeSearchView onBack={() => setView('home')} />}
       </main>
 
-      {view !== 'youtube' && <BottomNav view={view} setView={setView} />}
+      {view !== 'youtube' && view !== 'auto-youtube' && <BottomNav view={view} setView={setView} />}
     </div>
   )
 }
@@ -142,6 +153,7 @@ function HomeView({
   targetMinutes,
   setTargetMinutes,
   selectedPlan,
+  onAutoYouTube,
   onOpenPlans,
   onShopping,
   onPantry,
@@ -152,6 +164,7 @@ function HomeView({
   targetMinutes: number
   setTargetMinutes: (n: number) => void
   selectedPlan?: MealPlan
+  onAutoYouTube: () => void
   onOpenPlans: (mode: PlanMode) => void
   onShopping: () => void
   onPantry: () => void
@@ -186,9 +199,9 @@ function HomeView({
       </section>
 
       <section className="mode-grid">
-        <button className="mode-card mode-card-primary" onClick={() => onOpenPlans('auto')}>
+        <button className="mode-card mode-card-primary" onClick={onAutoYouTube}>
           <span className="mode-icon">✦</span>
-          <span><strong>おまかせ提案</strong><small>時間と段取りを優先</small></span>
+          <span><strong>おまかせ提案</strong><small>YouTubeから毎回ちがう候補</small></span>
           <span className="arrow">›</span>
         </button>
 
