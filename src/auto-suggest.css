@@ -248,3 +248,24 @@
   font-size: 12px;
   line-height: 1.7;
 }
+
+
+/* Adopt a YouTube recipe */
+.auto-action-row { display:grid; grid-template-columns:.9fr 1.1fr; gap:8px; }
+.auto-action-row .youtube-open-button, .auto-adopt-button { min-height:47px; margin:0; border-radius:14px; font-weight:900; }
+.auto-adopt-button { border:0; background:var(--accent); color:#fff; }
+.adopted-youtube-card { overflow:hidden; margin-top:18px; border:1px solid var(--line); border-radius:24px; background:var(--paper); box-shadow:var(--shadow); }
+.adopted-youtube-heading { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; }
+.adopted-youtube-heading strong { font-size:16px; }
+.adopted-youtube-badge { padding:6px 9px; border-radius:999px; background:var(--green-soft); color:var(--green); font-size:10px; font-weight:900; }
+.adopted-youtube-image { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; background:#eee; }
+.adopted-youtube-body { padding:15px 16px 17px; }
+.adopted-youtube-body h2 { margin:0; font-size:18px; line-height:1.45; }
+.adopted-youtube-body p { margin:6px 0 12px; color:var(--muted); font-size:11px; }
+.adopted-youtube-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:13px; }
+.adopted-youtube-tags span { padding:6px 8px; border-radius:999px; background:#fff0e8; color:var(--accent); font-size:10px; font-weight:850; }
+.adopted-youtube-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.adopted-youtube-actions button { min-height:46px; border-radius:14px; font-weight:900; }
+.adopted-youtube-watch { border:1px solid var(--line); background:#fff; color:var(--ink); }
+.adopted-youtube-change { border:0; background:var(--accent); color:#fff; }
+.adopted-youtube-clear { width:100%; margin-top:8px; border:0; background:transparent; color:var(--muted); font-size:10px; text-decoration:underline; }

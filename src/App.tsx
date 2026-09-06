@@ -3,7 +3,7 @@ import { recipes } from './data/recipes'
 import { defaultState, loadState, saveState } from './lib/db'
 import { buildCookingSteps, buildPlans, getMissingIngredients } from './lib/planner'
 import type { AppState, IngredientCategory, MealPlan, PantryItem } from './types'
-import YouTubeAutoSuggestView from './YouTubeAutoSuggestView'
+import YouTubeAutoSuggestView, { clearAdoptedYouTubeRecipe, loadAdoptedYouTubeRecipe, type AdoptedYouTubeRecipe } from './YouTubeAutoSuggestView'
 
 type View = 'home' | 'plans' | 'pantry' | 'shopping' | 'youtube' | 'auto-youtube' | 'cooking'
 type PlanMode = 'auto' | 'pantry'
@@ -45,6 +45,7 @@ function App() {
   const [targetMinutes, setTargetMinutes] = useState(30)
   const [state, setState] = useState<AppState>(defaultState)
   const [loaded, setLoaded] = useState(false)
+  const [adoptedYouTube, setAdoptedYouTube] = useState<AdoptedYouTubeRecipe | null>(() => loadAdoptedYouTubeRecipe())
 
   useEffect(() => {
     loadState().then((saved) => {
@@ -87,7 +88,12 @@ function App() {
             targetMinutes={targetMinutes}
             setTargetMinutes={setTargetMinutes}
             selectedPlan={selectedPlan}
+            adoptedYouTube={adoptedYouTube}
             onAutoYouTube={() => setView('auto-youtube')}
+            onClearAdoptedYouTube={() => {
+              clearAdoptedYouTubeRecipe()
+              setAdoptedYouTube(null)
+            }}
             onOpenPlans={(mode) => {
               setPlanMode(mode)
               setView('plans')
@@ -137,6 +143,10 @@ function App() {
             targetMinutes={targetMinutes}
             onBack={() => setView('home')}
             onOpenYouTubeSettings={() => setView('youtube')}
+            onAdopt={(recipe) => {
+              setAdoptedYouTube(recipe)
+              setView('home')
+            }}
           />
         )}
 
@@ -153,7 +163,9 @@ function HomeView({
   targetMinutes,
   setTargetMinutes,
   selectedPlan,
+  adoptedYouTube,
   onAutoYouTube,
+  onClearAdoptedYouTube,
   onOpenPlans,
   onShopping,
   onPantry,
@@ -164,7 +176,9 @@ function HomeView({
   targetMinutes: number
   setTargetMinutes: (n: number) => void
   selectedPlan?: MealPlan
+  adoptedYouTube: AdoptedYouTubeRecipe | null
   onAutoYouTube: () => void
+  onClearAdoptedYouTube: () => void
   onOpenPlans: (mode: PlanMode) => void
   onShopping: () => void
   onPantry: () => void
@@ -230,7 +244,31 @@ function HomeView({
         </button>
       </section>
 
-      {selectedPlan && (
+      {adoptedYouTube && (
+        <section className="adopted-youtube-card">
+          <div className="adopted-youtube-heading">
+            <strong>今日の採用レシピ</strong>
+            <span className="adopted-youtube-badge">✓ 採用中</span>
+          </div>
+          {adoptedYouTube.thumbnail && <img className="adopted-youtube-image" src={adoptedYouTube.thumbnail} alt="" />}
+          <div className="adopted-youtube-body">
+            <h2>{adoptedYouTube.title}</h2>
+            <p>{adoptedYouTube.channelTitle}</p>
+            <div className="adopted-youtube-tags">
+              <span>{adoptedYouTube.ingredient}</span>
+              <span>{adoptedYouTube.theme}</span>
+              {adoptedYouTube.duration && <span>動画 {adoptedYouTube.duration}</span>}
+            </div>
+            <div className="adopted-youtube-actions">
+              <button className="adopted-youtube-watch" onClick={() => openYouTube(adoptedYouTube.id)}>▶ 動画を見る</button>
+              <button className="adopted-youtube-change" onClick={onAutoYouTube}>別の候補を探す</button>
+            </div>
+            <button className="adopted-youtube-clear" onClick={onClearAdoptedYouTube}>採用を解除</button>
+          </div>
+        </section>
+      )}
+
+      {!adoptedYouTube && selectedPlan && (
         <section className="today-card">
           <div className="today-card-top">
             <div><span className="section-kicker">現在の献立</span><h2>{selectedPlan.estimatedMinutes}分コース</h2></div>

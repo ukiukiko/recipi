@@ -5,6 +5,39 @@ import './auto-suggest.css'
 const API_KEY_STORAGE = 'recipi.youtubeApiKey'
 const VIDEO_HISTORY_STORAGE = 'recipi.youtubeAutoHistory'
 const QUERY_HISTORY_STORAGE = 'recipi.youtubeAutoQueryHistory'
+const ADOPTED_RECIPE_STORAGE = 'recipi.adoptedYouTubeRecipe'
+
+export type AdoptedYouTubeRecipe = {
+  id: string
+  title: string
+  channelTitle: string
+  thumbnail: string
+  viewCount: number
+  duration: string
+  ingredient: string
+  theme: string
+  selectedAt: string
+}
+
+export function loadAdoptedYouTubeRecipe(): AdoptedYouTubeRecipe | null {
+  try {
+    const raw = localStorage.getItem(ADOPTED_RECIPE_STORAGE)
+    if (!raw) return null
+    const value = JSON.parse(raw) as Partial<AdoptedYouTubeRecipe>
+    if (!value.id || !value.title) return null
+    return value as AdoptedYouTubeRecipe
+  } catch {
+    return null
+  }
+}
+
+export function clearAdoptedYouTubeRecipe() {
+  localStorage.removeItem(ADOPTED_RECIPE_STORAGE)
+}
+
+function saveAdoptedYouTubeRecipe(recipe: AdoptedYouTubeRecipe) {
+  localStorage.setItem(ADOPTED_RECIPE_STORAGE, JSON.stringify(recipe))
+}
 
 const DEFAULT_INGREDIENTS = ['鶏むね肉', '豚こま', '鮭', '豆腐', '卵', 'キャベツ', 'なす', 'じゃがいも']
 const BASE_THEMES = ['簡単', '時短', 'ワンパン', '節約', 'ご飯が進む', '作り置き', 'レンジ', '人気']
@@ -226,11 +259,13 @@ export default function YouTubeAutoSuggestView({
   targetMinutes,
   onBack,
   onOpenYouTubeSettings,
+  onAdopt,
 }: {
   pantry: PantryItem[]
   targetMinutes: number
   onBack: () => void
   onOpenYouTubeSettings: () => void
+  onAdopt: (recipe: AdoptedYouTubeRecipe) => void
 }) {
   const apiKey = localStorage.getItem(API_KEY_STORAGE) ?? ''
   const [videos, setVideos] = useState<Candidate[]>([])
@@ -296,6 +331,23 @@ export default function YouTubeAutoSuggestView({
     firstLoad.current = true
     void loadSuggestions()
   }, [apiKey])
+
+  const adoptVideo = (video: Candidate) => {
+    const recipe: AdoptedYouTubeRecipe = {
+      id: video.id,
+      title: video.title,
+      channelTitle: video.channelTitle,
+      thumbnail: video.thumbnail,
+      viewCount: video.viewCount,
+      duration: video.duration,
+      ingredient: video.ingredient,
+      theme: video.theme,
+      selectedAt: new Date().toISOString(),
+    }
+
+    saveAdoptedYouTubeRecipe(recipe)
+    onAdopt(recipe)
+  }
 
   const resetHistory = () => {
     localStorage.removeItem(VIDEO_HISTORY_STORAGE)
@@ -382,7 +434,10 @@ export default function YouTubeAutoSuggestView({
                     <strong>{formatViews(video.viewCount)}回再生</strong>
                     {video.duration && <span>動画 {video.duration}</span>}
                   </div>
-                  <button className="youtube-open-button" onClick={() => openYouTube(video.id)}>▶ このレシピを見る</button>
+                  <div className="auto-action-row">
+                    <button className="youtube-open-button" onClick={() => openYouTube(video.id)}>▶ 動画を見る</button>
+                    <button className="auto-adopt-button" onClick={() => adoptVideo(video)}>✓ このレシピにする</button>
+                  </div>
                 </div>
               </article>
             ))}
